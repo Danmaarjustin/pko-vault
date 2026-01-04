@@ -2,8 +2,8 @@ import pulumi
 import requests
 import time
 
-config = pulumi.Config()
-vault_addr = config.require("vault:address")
+config = pulumi.Config("vault")
+vault_addr = config.require("address")
 
 def wait_for_vault(url: str, timeout=60):
     pulumi.log.info(f"Checking Vault health at {url}")
