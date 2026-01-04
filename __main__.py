@@ -1,5 +1,3 @@
-"""A Python Pulumi program"""
-
 import pulumi
 import requests
 import time
