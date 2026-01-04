@@ -1,0 +1,9 @@
+[project]
+name = "pko-vault"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "pulumi>=3.0.0,<4.0.0",
+    "pulumi-vault>=7.6.0",
+    "requests>=2.32.5",
+]
