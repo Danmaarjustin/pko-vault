@@ -1,8 +1,8 @@
 import pulumi
-from pulumi_vault import mount, pki_secret_backend_root_cert, pki_secret_backend_config_urls, pki_secret_backend_role, policy, auth_backend, kubernetes_auth_backend_role, kubernetes_auth_backend_config
-from pulumi_kubernetes.core.v1 import ServiceAccount
-from pulumi_kubernetes.rbac.v1 import ClusterRole, ClusterRoleBinding
-from pulumi_kubernetes.yaml import ConfigFile
+#from pulumi_vault import mount, pki_secret_backend_root_cert, pki_secret_backend_config_urls, pki_secret_backend_role, policy, auth_backend, kubernetes_auth_backend_role, kubernetes_auth_backend_config
+#from pulumi_kubernetes.core.v1 import ServiceAccount
+#from pulumi_kubernetes.rbac.v1 import ClusterRole, ClusterRoleBinding
+#from pulumi_kubernetes.yaml import ConfigFile
 
 import json
 import subprocess
