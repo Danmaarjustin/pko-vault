@@ -7,46 +7,42 @@ from pulumi_kubernetes.yaml import ConfigFile
 import json
 import subprocess
 
-def get_vault_root_token():
-    # 1️⃣ Zoek de job die begint met vault-bootstrap-
-    get_jobs_cmd = [
-        "kubectl", "get", "jobs",
+def get_vault_token_from_job(job_prefix="vault-bootstrap-"):
+    # 1️⃣ Vind de pod van de job
+    pods_json = subprocess.check_output([
+        "kubectl", "get", "pods",
         "-n", "pulumi-kubernetes-operator",
         "-o", "json"
-    ]
-    jobs_json = subprocess.check_output(get_jobs_cmd).decode("utf-8")
-    jobs_data = json.loads(jobs_json)
+    ]).decode()
+    pods = json.loads(pods_json)["items"]
 
-    vault_job_name = None
-    for item in jobs_data["items"]:
-        name = item["metadata"]["name"]
-        if name.startswith("vault-bootstrap-"):
-            vault_job_name = name
+    pod_name = None
+    for pod in pods:
+        name = pod["metadata"]["name"]
+        if name.startswith(job_prefix):
+            pod_name = name
             break
+    if not pod_name:
+        raise Exception("Geen vault-bootstrap pod gevonden!")
 
-    if vault_job_name is None:
-        raise Exception("Geen vault-bootstrap job gevonden!")
-
-    # 2️⃣ Haal de logs op van die job
-    logs_cmd = [
+    # 2️⃣ Haal logs op
+    logs = subprocess.check_output([
         "kubectl", "logs",
         "-n", "pulumi-kubernetes-operator",
-        f"jobs/{vault_job_name}"
-    ]
-    logs = subprocess.check_output(logs_cmd).decode("utf-8")
+        pod_name
+    ]).decode()
 
-    # 3️⃣ Zoek het JSON object met root_token
+    # 3️⃣ Parse JSON token
     for line in logs.splitlines():
         line = line.strip()
         if line.startswith("{") and "root_token" in line:
             data = json.loads(line)
             return data["root_token"]
 
-    raise Exception("Geen root_token gevonden in job logs!")
+    raise Exception("Geen root_token gevonden in de pod logs!")
 
-# 4️⃣ Gebruik Pulumi Output zodat het veilig in de stack kan
-vault_token = pulumi.Output.from_input(get_vault_root_token())
-pulumi.export("vault_token", vault_token)
+vault_token = get_vault_token_from_job()
+print("Vault root token:", vault_token)
 
  
 # --- Config ---
