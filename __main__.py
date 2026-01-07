@@ -87,33 +87,20 @@ cert = vault.pkisecret.SecretBackendCert("cert",
     opts=pulumi.ResourceOptions(provider=vault_provider)
 )
 
-# Kubernetes mount
-k8s_mount = vault.Mount(
-    "kubernetes-secrets",
-    path="kubernetes",  # of ander pad
-    type="kubernetes",
-    description="Kubernetes secrets engine",
-    options={
-        "default_lease_ttl": "43200s",
-        "max_lease_ttl": "86400s"
-    },
-    opts=pulumi.ResourceOptions(provider=vault_provider),
-)
-
 # Configure Kubernetes auth backend
 k8s_config = vault.kubernetes.SecretBackend(
     "k8s-auth-config",
     path="kubernetes",
     kubernetes_host="https://kubernetes.default.svc:443",
     disable_local_ca_jwt=False,
-    opts=pulumi.ResourceOptions(provider=vault_provider, depends_on=[k8s_mount]),
+    opts=pulumi.ResourceOptions(provider=vault_provider),
 )
 
 issuer_role = vault.kubernetes.AuthBackendRole(
     "issuer-role",
     backend="kubernetes",
     role_name="issuer",
-    bound_service_account_names=["issuer"],
+    bound_service_account_names=["vault-issuer"],
     bound_service_account_namespaces=["cert-manager", "default"],
     token_policies=["pki"],
     token_ttl="3600",
