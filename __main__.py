@@ -9,7 +9,8 @@ from pulumi_kubernetes.apiextensions import CustomResource
 config = pulumi.Config("vault")
 vault_addr = config.require("address")
 vault_token = config.require_secret("token")
-
+print(vault_token)
+pulumi.log.info(f"Show token for debug... {vault_token}")
 # --- Step 6: Vault provider ---
 vault_provider = vault.Provider(
     "vault",
