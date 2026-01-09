@@ -99,7 +99,7 @@ k8s_config = vault.kubernetes.SecretBackend(
 
 issuer_role = vault.kubernetes.AuthBackendRole(
     "issuer-role",
-    backend="kubernetes",
+    backend=k8s_config.path,
     role_name="issuer",
     bound_service_account_names=["vault-issuer"],
     bound_service_account_namespaces=["cert-manager", "default"],
