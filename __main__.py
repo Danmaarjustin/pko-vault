@@ -128,13 +128,15 @@ cluster_issuer = CustomResource(
             "server": vault_addr,
             "path": pki.path.apply(lambda path: f"{path}/sign/prod"),
             "auth": {
-                "kubernetes": {
-                    "mountPath": "/v1/auth/kubernetes",
-                    "role": issuer_role.role_name,
-                    "serviceAccountRef": {  # <--- Veranderd van service_account_ref naar serviceAccountRef
-                        "name": "vault-issuer",
+                "kubernetes": issuer_role.role_name.apply(
+                    lambda role: {
+                        "mountPath": "/v1/auth/kubernetes",
+                        "role": role,
+                        "serviceAccountRef": {
+                            "name": "vault-issuer",
+                        },
                     }
-                }
+                )
             }
         }
     },
