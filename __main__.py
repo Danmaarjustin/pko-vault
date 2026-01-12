@@ -87,7 +87,14 @@ cert = vault.pkisecret.SecretBackendCert("cert",
     revoke=True,
     opts=pulumi.ResourceOptions(
         provider=vault_provider,
-        depends_on=[vault_policy, urls_config, root_cert]
+        depends_on=[vault_policy, urls_config, root_cert],
+        ignore_changes=[
+            "certificate", 
+            "private_key", 
+            "issuing_ca", 
+            "serial_number",
+            "expiration"
+        ]
     )
 )
 
