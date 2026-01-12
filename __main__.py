@@ -85,7 +85,10 @@ cert = vault.pkisecret.SecretBackendCert("cert",
     private_key_format="pkcs8",
     auto_renew=True,
     revoke=True,
-    opts=pulumi.ResourceOptions(provider=vault_provider)
+    opts=pulumi.ResourceOptions(
+        provider=vault_provider,
+        depends_on=[vault_policy, urls_config, root_cert]
+    )
 )
 
 # --- Step 8: Configure Kubernetes auth backend ---
