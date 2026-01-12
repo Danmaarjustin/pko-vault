@@ -88,7 +88,7 @@ cert = vault.pkisecret.SecretBackendCert("cert",
     opts=pulumi.ResourceOptions(provider=vault_provider)
 )
 
-# Configure Kubernetes auth backend
+# --- Step 8: Configure Kubernetes auth backend ---
 k8s_config = vault.kubernetes.AuthBackendConfig(
     "k8s-auth-config",
     path="kubernetes",
@@ -107,6 +107,8 @@ issuer_role = vault.kubernetes.AuthBackendRole(
     token_ttl="3600",
     opts=pulumi.ResourceOptions(provider=vault_provider, depends_on=[k8s_config]),
 )
+
+# --- Step 9: Create corresponding service account in k8s
 
 sa = ServiceAccount(
     "vault-issuer-sa",
