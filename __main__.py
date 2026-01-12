@@ -11,7 +11,7 @@ vault_addr = config.require("address")
 vault_token = config.require_secret("token")
 print(vault_token)
 pulumi.log.info(f"Show token for debug... {vault_token}")
-# --- Step 6: Vault provider ---
+# --- Step 1 : Create Vault provider ---
 vault_provider = vault.Provider(
     "vault",
     address=vault_addr,  # <-- gebruik hier je Ingress domein
@@ -19,7 +19,7 @@ vault_provider = vault.Provider(
     skip_tls_verify=True           # optioneel als je selfsigned gebruikt
 )
 
-# --- Step 7: Enable PKI ---
+# --- Step 2: Enable PKI ---
 pki = vault.Mount(
     "pki",
     type="pki",
@@ -30,7 +30,7 @@ pki = vault.Mount(
 )
 
 
-# --- Step 8: Create role ---
+# --- Step 3: Create role ---
 pki_role = vault.pkisecret.SecretBackendRole(
     "pki-role",
     backend=pki.path,
@@ -41,7 +41,7 @@ pki_role = vault.pkisecret.SecretBackendRole(
     opts=pulumi.ResourceOptions(provider=vault_provider)
 )
 
-# Create root cert
+# --- Step 4: Create root cert ---
 root_cert = vault.pkisecret.SecretBackendRootCert(
     "root-ca",
     backend=pki.path,
@@ -51,7 +51,7 @@ root_cert = vault.pkisecret.SecretBackendRootCert(
     opts=pulumi.ResourceOptions(provider=vault_provider)
 )
 
-# Configure isseuing and CRL
+# --- Step 5: Configure isseuing and CRL ---
 
 urls_config = vault.pkisecret.SecretBackendConfigUrls(
     "pki-urls",
@@ -61,7 +61,7 @@ urls_config = vault.pkisecret.SecretBackendConfigUrls(
     opts=pulumi.ResourceOptions(provider=vault_provider)
 )
 
-# Create vault policy for PKI
+# --- step 6: Create vault policy for PKI ---
 
 vault_policy = vault.Policy("pki-policy",
     name="pki",
@@ -74,7 +74,7 @@ path "pki/issue/prod"    { capabilities = ["create"] }
     opts=pulumi.ResourceOptions(provider=vault_provider)
 )
 
-# Create test cert
+# --- step 7: Create test cert ---
 
 cert = vault.pkisecret.SecretBackendCert("cert",
     backend=pki.path,
@@ -89,7 +89,7 @@ cert = vault.pkisecret.SecretBackendCert("cert",
 )
 
 # Configure Kubernetes auth backend
-k8s_config = vault.kubernetes.SecretBackend(
+k8s_config = vault.kubernetes.AuthBackendConfig(
     "k8s-auth-config",
     path="kubernetes",
     kubernetes_host="https://kubernetes.default.svc:443",
