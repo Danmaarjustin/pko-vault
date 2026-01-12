@@ -89,16 +89,20 @@ cert = vault.pkisecret.SecretBackendCert("cert",
 )
 
 # --- Step 8: Configure Kubernetes auth backend ---
-# De configuratie van de verbinding
+k8s_auth = vault.AuthBackend("kubernetes-auth",
+    type="kubernetes",
+    path="kubernetes",
+    opts=pulumi.ResourceOptions(provider=vault_provider)
+)
+
 k8s_config = vault.kubernetes.AuthBackendConfig(
     "k8s-auth-config",
-    backend="kubernetes", # De naam/pad van de auth methode (meestal 'kubernetes')
+    backend=k8s_auth.path, # Verwijzing naar mount(Is tevens de dependency)
     kubernetes_host="https://kubernetes.default.svc:443",
     disable_local_ca_jwt=False,
     opts=pulumi.ResourceOptions(provider=vault_provider),
 )
 
-# De rol definitie
 issuer_role = vault.kubernetes.AuthBackendRole(
     "issuer-role",
     backend=k8s_config.backend,
